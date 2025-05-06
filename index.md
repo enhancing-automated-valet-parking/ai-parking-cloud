@@ -5,10 +5,9 @@ sidebar:
 title: EAVP - Enhancing Automated Valet Parking 
 sort: 0
 ---
-<p align="center">
-    <img src="https://eavp.eu/wp-content/uploads/2024/12/Untitled-design-2024-12-04T105820.680.png" width="480px">
+<p>
+    <img src="https://eavp.eu/wp-content/uploads/2024/12/Untitled-design-2024-12-04T105820.680.png" width="240px">
 </p>
-
 
 > **&#9432;**  
 > **This website is work in progress.**  
