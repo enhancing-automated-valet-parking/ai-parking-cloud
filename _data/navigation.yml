@@ -8,7 +8,7 @@ sidemain:
       - title: "Platform Outline"
         url: /platform_outline
       - title: "Use Cases"
-        url: /usecases
+        url: /use_cases
       - title: "Sample Flows"
         url: /flows
   - title: "Presentations"
