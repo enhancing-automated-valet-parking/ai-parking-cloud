@@ -1,54 +1,34 @@
 openapi: 3.1.0
 
 info:
-  title: "NPP API Specification" 
-  version: "1.0.0"
+  title: "APDS API Specification" 
+  version: "5.0.0WIP"
 
   description: |-
-   # Introduction
-   The National Parking Platform (NPP) is a backend system that enables all connected clients  to exchange parking information, considering their respective roles:
-               
-   * Parking Operator
-   * Parking Service Provider
-   * Connected Supplier
-                   
-   The NPP is a so-called headless system, mainly communicating via an application programming interface (API). This API is based on APDS, the parking data exchange model and format standardised by the Alliance for Parking Data Standards. This document specifies the APDS subset used by the NPP, supplemented by some extensions the publication of which is still pending. The currently released version of APDS is version 4.  
+   # APDS - An Introduction
 
-   ### All connected NPP clients must adhere to the interface specification set out here.                
+   ## Context, Motivation
+   A few years back, the [International Parking &amp; Mobility Institute (**IPMI**)](https://ipmi.parking-mobility.org), the [British Parking Association (**BPA**)](https://www.britishparking.co.uk), and the [European Parking Association (**EPA**)](https://www.europeanparking.eu) formed a not-for-profit organization with the mission to develop, promote, manage, and maintain a uniform global standard that will allow organizations to share parking data across platforms worldwide: **APDS**, the [Alliance for Parking Data Standards](https://www.allianceforparkingdatastandards.org). 
 
-   # APDS Scope
-   ## APDS Data Domains
-   The APDS model defines a number of data domains:
-   * Place
-   * Occupancy
-   * Rate
-   * Right
-   * Session
-   * Quote
-   * Oberservation
+   ## Specification
+   _APDS_ has developed the global parking data standard in form of a comprehensive (UML) model. This model is the source for the _APDS Specifications_ (overview, information model, data model, use cases). You can request the specification documents on the [APDS website](https://www.allianceforparkingdatastandards.org) free of charge.
+   
+   ## API
+   The _APDS_ working group has also created a comprehensive representation of the APDS data model in form of an **API**. This interface is documented using the [OpenAPI Specification Standard](https://www.openapis.org) originally initiated by [Swagger](https://swagger.io) and then taken over by the **Open APIs** initiative. Depending on the particular application, there might be other ways to describe the model and a derived interface. But _APDS_ figured it would be a good starting point for adopters to have something readily available to base their work on. This repository contains said **APS OpenAPI Specification**.
 
-   The official APDS specification documents can be request via the [APDS website](https://www.allianceforparkingdatastandards.org 'APDS website').
-
-   ## APDS Domains NOT used by the NPP
-   The current version of the NPP does not engage all APDS-defined data domains / model packages. In particular, the following parts are not used:
-
-   * Quote
-   * Observation
-   * Electrical Infrastructure (sub-package of Place) – might be added later
-
-   ## Non-APDS Domains used by the NPP
-   Note: the NPP endpoints defined to cover __Reconciliation__ and __Observability__ are not defined in the APDS standard and hence have been specified as project-specific interface components.
-
+   # EAVP 
+   # API
+   This repository holds a copy of an APDS work-in-progress version intended to be released in the future. 
 
 
 servers:
-  - url: "https://staging-api.npp.org.uk"
-  - url: "https://api.npp.org.uk"
+  - url: "https://staging-api.ai-parking.cloud"
+  - url: "https://api.ai-parking.cloud"
 
 tags:
   - name: Assigned Rights
     description: |- 
-      In APDS, _Assigned Rights_ are the representation of parking rights. _Assigned Rights_ are issued by parking operators and/or service providers. As soon as a parking right has been issued to a driver, it is sent to the NPP by the issuing entity. _Assigned Rights_ are the most important source of information for connected enforcement systems to check the eligibility of a parked vehicle.
+      In APDS, _Assigned Rights_ are the representation of parking rights. _Assigned Rights_ are issued by parking operators and/or service providers. As soon as a parking right has been issued to a driver, it is sent to the Platform by the issuing entity. _Assigned Rights_ are the most important source of information for connected enforcement systems to check the eligibility of a parked vehicle.
   - name: Places
     description: |-
       The _Place_ Hierarchy endpoints accept/provide details about parking locations (_Places_).
@@ -60,20 +40,20 @@ tags:
       The _Right Specifications_ endpoints accept/provide information about charging hours, eligibility criteria and point to applicable tariffs. Each _Right Specification_ applies to one or more _Places_. 
   - name: Sessions
     description: |-
-      In APDS, _Sessions_ describe the act of actively making use of a previously-obtained parking right (_Assigned Right_). When drivers park their vehicles or leave the parking location, the service provider’s backend or the operator’s parking management system report this to the NPP. _Session_ data can later be read from the NPP to support use cases like .e.g.
+      In APDS, _Sessions_ describe the act of actively making use of a previously-obtained parking right (_Assigned Right_). When drivers park their vehicles or leave the parking location, the service provider’s backend or the operator’s parking management system report this to the Platform. _Session_ data can later be read from the Platform to support use cases like .e.g.
       * checking a challenged PCN (e.g. via the _Session Viewer_ application)
       * checking the details of a parking session (via an enforcement system)
   - name: Reconciliation
     description: |-
-      Whilst the multi-vendor capability introduced by the NPP provides a high level of convenience to drivers, it makes the reconciliation process more complicated. The NPP offers a monthly consolidated reconciliation report. Operators can thus ensure that they have received all the parking fees to which they are entitled from the service providers. For this purpose, all service providers must submit detailed reconciliation information to the NPP, which then creates the above-mentioned consolidated view based on this input.
+      Whilst the multi-vendor capability introduced by the Platform provides a high level of convenience to drivers, it makes the reconciliation process more complicated. The Platform offers a monthly consolidated reconciliation report. Operators can thus ensure that they have received all the parking fees to which they are entitled from the service providers. For this purpose, all service providers must submit detailed reconciliation information to the Platform, which then creates the above-mentioned consolidated view based on this input.
   - name: Observability
     description: |-
       Alerts, Health, Performance Status Information  
-      The NPP is constantly monitoring pre-defined performance indicators. Events that require connected clients to be notified, will trigger a corresponding alert. The NPP differentiates between one-time alerts and repeating alerts. Whilst one-time alerts do not repeat, repeating alerts can recur as long as the undesirable state persists. The standard mechanism to share an alert is defined by its action (e.g. send email notification, push to client-provided notification endpoint). In addition, the NPP offers an endpoint for querying alerts/events that have occurred within a specified period of time. To subscribe to push alerts, please use the NPP’s /webhooks endpoint (see _Subscriptions_). The topic to subscribe to is _SystemEvents_. Please note that the push mechanism considers client roles and permissions.
+      The Platform is constantly monitoring pre-defined performance indicators. Events that require connected clients to be notified, will trigger a corresponding alert. The Platform differentiates between one-time alerts and repeating alerts. Whilst one-time alerts do not repeat, repeating alerts can recur as long as the undesirable state persists. The standard mechanism to share an alert is defined by its action (e.g. send email notification, push to client-provided notification endpoint). In addition, the Platform offers an endpoint for querying alerts/events that have occurred within a specified period of time. To subscribe to push alerts, please use the Plaform's /webhooks endpoint (see _Subscriptions_). The topic to subscribe to is _SystemEvents_. Please note that the push mechanism considers client roles and permissions.
 
   - name: Subscription
     description: |-
-      For _Assigned Right_ information, _Session Data_, and _System Events_, the NPP offers both, PULL and PUSH mode. The latter is implemented in form of webhooks. An interested entity can subscribe to one or more topics, potentially for a subset of the active NPP parking locations. 
+      For _Assigned Right_ information, _Session Data_, and _System Events_, the Platform offers both, PULL and PUSH mode. The latter is implemented in form of webhooks. An interested entity can subscribe to one or more topics, potentially for a subset of the active Platform parking locations. 
 
 paths:
 
@@ -1426,9 +1406,9 @@ paths:
                             "timestamp": "2025-05-01T17:12:02Z",
                             "start": "2025-05-01T17:11:52Z",
                             "type": "triggered",
-                            "metric": "npp.api.responsetime.average",
+                            "metric": "apds.api.responsetime.average",
                             "condition": "acceptable threshold of 10 seconds exceeded for more than 5 minutes",
-                            "description": "The average response time continues to be above the acceptable threshold of 10 seconds. The NPP team has identified the issue and is working on its resolution.",
+                            "description": "The average response time continues to be above the acceptable threshold of 10 seconds. The Platform team has identified the issue and is working on its resolution.",
                             "impact": ["responseTime"]
                           }
               responses:
@@ -1457,7 +1437,7 @@ paths:
               providerFilter:
                 summary: filter by two specific service providers
                 value:
-                  - name: npp.ingestion.dataset.sessions.count
+                  - name: apds.ingestion.dataset.sessions.count
                     filters:
                       - type: service-provider
                         values: ["PROVIDER1","PROVIDER2"]
@@ -1477,7 +1457,7 @@ paths:
                   value:
                     [
                       {
-                        "name": "npp.ingestion.dataset.sessions.count",
+                        "name": "apds.ingestion.dataset.sessions.count",
                         "description": "number of recently received session records",
                         "filters": [
                           {
@@ -1516,7 +1496,7 @@ components:
       type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: https://api.npp.org.uk/auth
+          tokenUrl: https://api.ai-parking.cloud/auth
           scopes:
             po: Parking Operator
             sp: Service Provider
@@ -1995,7 +1975,7 @@ components:
       type: string
       x-package: common
       format: email
-      examples: ["john.doe@npp.com"]
+      examples: ["john.doe@ai-parking.cloud"]
 
     LanguageCode:
       title: LanguageCode
@@ -2018,7 +1998,7 @@ components:
       description: Represents a Url for an internet accessible resource.
       type: string
       x-package: common
-      examples: ["https://api.npp.org.uk"]
+      examples: ["https://api.ai-parking.cloud"]
 
     MultilingualString:
       title: MultilingualString
@@ -6535,7 +6515,7 @@ components:
         name:
           type: string
           description: unique name of the metric
-          examples: ["npp.ingestion.dataset.sessions.count","npp.responsetime.average"]
+          examples: ["apds.ingestion.dataset.sessions.count","apds.responsetime.average"]
         description:
           type: string
           description: human-readable name/description of the metric
@@ -6619,7 +6599,7 @@ components:
         metric:
           description: metric for which a trigger condition occurred
           type: string
-          examples: ["npp.api.responsetime.average"]
+          examples: ["apds.api.responsetime.average"]
         condition:
           description: condition that triggered the alert
           type: string
@@ -6627,7 +6607,7 @@ components:
         description:
           description: free text with additional details, e.g. to be used in email communication or similar
           type: string
-          examples: ["The average response time continues to be above the acceptable threshold of 10 seconds. The NPP team has identified the issue and is working on its resolution."]
+          examples: ["The average response time continues to be above the acceptable threshold of 10 seconds. The Platform team has identified the issue and is working on its resolution."]
         impact:
           description: list of one or more impact types that this alert has
           type: array
@@ -6639,9 +6619,9 @@ components:
           "timestamp": "2025-05-01T17:12:02Z",
           "start": "2025-05-01T17:11:52Z",
           "type": "triggered",
-          "metric": "npp.api.responsetime.average",
+          "metric": "apds.api.responsetime.average",
           "condition": "acceptable threshold of 10 seconds exceeded for more than 5 minutes",
-          "description": "The average response time continues to be above the acceptable threshold of 10 seconds. The NPP team has identified the issue and is working on its resolution.",
+          "description": "The average response time continues to be above the acceptable threshold of 10 seconds. The Platform team has identified the issue and is working on its resolution.",
           "impact": ["responseTime"]
         }
       ]
