@@ -1537,7 +1537,7 @@ Example:
 }
 ```
 
-### Payment Procesing
+### Payment Processing
 In APDS, a _Payment_ and its _Payment Lines_ offer identifiers which can be used to "tag" payments and facilitate the processing in connected billing and accounting systems. This will require agreed-upon conventions and identifiers that are not standardised by APDS but are rather specific to a particular, use case / eco system / project.
 
 
