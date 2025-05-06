@@ -9,12 +9,12 @@ sidemain:
         url: /platform_outline
       - title: "Use Cases"
         url: /use_cases
-      - title: "Sample Flows"
-        children:
-          - title: Flows
-            url: /flows
-          - title: "Use Case 1: Manual Parking"
-            url: /flows#use-case-1-manual-parking
+  - title: "Sample Flow"
+    children:
+      - title: "Flows"
+        url: /flows
+      - title: "Use Case 1: Manual Parking"
+        utl: /flows#use-case-1-manual-parking
   - title: "Presentations"
     children:
       - title: "Customer Journey"
