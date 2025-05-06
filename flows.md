@@ -6,6 +6,8 @@ title: Sample Flows
 sort: 0
 ---
 
+## Introduction
+This document provides a walkthrough through different use cases identified by the EAVP platform team. It follows the flow of the [Customer Journey](https://docs.ai-parking.cloud/customer_journey) and provides request and response examples based on the underlying [APDS API](https://docs.ai-parking.cloud/apdsv5/index.html). Visit this API specification to find additional details on the engaged model classes and their attributes.
 
 ## Inventory Information Server (Parking Aggregator / Operator)
 This is a system holding inventory information about connected parking locations.  
@@ -50,7 +52,7 @@ This is the basic use case where a traditional vehicle is being used. An overvie
   * Charge charging fee to customer account
 
 
-## Availability query (where is the parking facility, and how much does it cost?)
+## Before and while driving: where is the parking facility?
 When the GET /places request is made, certain filter criteria can be specified in the query to narrow the search result down. 
 
 ### Example
@@ -161,7 +163,8 @@ The inventory system will respond with something like this:
   ]
 }
 ```
-The caller will then have to query the details of the referenced right specification. _Right Specifications_ provide further details on constraints and eligibility criteria that apply in a certain place.
+
+The caller will then have to query the details of the referenced right specification(s). _Right Specifications_ provide further details on constraints and eligibility criteria that apply in a certain place.
 
 ```
 GET /rights/specs/publicParkingRightSpec?expand=all
@@ -206,8 +209,12 @@ The inventory system will provide the requested details:
 }
 ```
 
-Depending on the user interaction design of the user frontend, the system could now query tariff details to answer the "How much does it cost?" question (or do this later when requesting a quote in preparation of a reservation).  
+Please note that - in this first simple example - the system only returns a single parking location with just one generic right specification that applies there.
 
+## Before and while driving: how much does it cost?
+Depending on the user interaction design of the user frontend, the system would now query tariff details to answer the "How much does it cost?" question (or do this later when requesting a quote in preparation of a reservation).  
+
+### Example
 ```json
 {
     "id": "publicTariffId",
@@ -269,11 +276,12 @@ Depending on the user interaction design of the user frontend, the system could 
 }
 ```
 
-## Making a reservation
+## Before and while driving: selecting a parking facility (and making a reservation)
 Once the driver has - based on the previously obtained inventory information - decided to use the car park at the destination, the user backend will have to  
 * obtain a binding offer (APDS term: quote) and then
 * confirm this (i.e. book it)
 
+### Example: obtain a quote
 When the POST /quotes QuoteRightRequest is sent, the right specification to be applied shall be referenced. The list of available right specifications was retrieved earlier during the discovery process (in our first example, it was just one).
 
 ```
@@ -306,7 +314,7 @@ _(the request body contains a so-called QuoteRightRequest)_
   }
 }
 ```
-Based on this request, the parking aggregator / the parking operator backend system will check availability of AVP services in this car park for this period of time.
+Based on this request, the parking aggregator / the parking operator backend system will check availability of parking services in this car park for this period of time.
 
 The backend will then respond with a corresponding _QuoteRightResponse_:
 
@@ -346,6 +354,7 @@ The backend will then respond with a corresponding _QuoteRightResponse_:
 }
 ```
 
+### Example: accept the quote, and make a binding booking
 In our example, the requested options can be met. The user backend is informed about the availability and the associated costs for this service. The received quote remains binding until 10pm the same day.
 
 The user backend can then confirm the booking by asking the parking backend to create a corresponding APDS assigned right.
@@ -373,7 +382,25 @@ The parking system will then have to confirm this:
 }
 ```
 
-With that, the AVP parking service has been booked, and the car park should be awaiting the drivers arrival at the specified date and time.
+With that, the parking service has been booked, and the car park should be awaiting the drivers arrival at the specified date and time.
+
+## Before and while driving: Activation of in-vehicle navigation to entry
+This process takes place entirely under the control of the OEM and does not require joint standardisation.
+
+## Arriving/Entry: open barrier
+This process takes place entirely under the control of the Parking Operator's management system and does not require joint standardisation. Obviously, the parking facility will have to be equipped with ANPR technology (or other means of identification like e.g. RFID) to recognize the vehicle and the associated booking.
+
+## Arriving/Entry: start parking transaction
+In APDS, a _Session_ is the act of making use of a previously-obtained _Assigned Right_ (parking right). In our case, this happened during the booking process. Now that the vehicle has entered the facility, the Parking Operator's management system will have to start a _Parking Session_ backed by the aforementioned _Assigned Right_. All stakeholders with a need-to-know shall be informed about this. To do so, the Parking Operator's management system sends a new _Session_ record to the Platform.
+
+### Example: send new Session
+```
+POST /sessions
+```
+
+```json
+
+```
 
 # Use Case 2: Manual Parking (L2 parking assistance)
 This is the basic use case where a traditional vehicle or a vehicle equipped with L2 parking assistance is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
