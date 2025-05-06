@@ -521,7 +521,7 @@ PUT /sessions/parkingSessionId
 ## Payment: charge parking fee to customer account
 The details of payment flow require further discussion in the team as there are many different ways of handling this.
 
-Provided the booking boundaries haven't been exceeded, the monetary value of the parking session is known at this point. It was already communicated along the lines of the quote and booking process. See [Example: obtain a quote](###Example:-obtain-a-quote).
+Provided the booking boundaries haven't been exceeded, the monetary value of the parking session is known at this point. It was already communicated along the lines of the quote and booking process. See [Example: obtain a quote](#example-obtain-a-quote).
 
 During the booking, an _Assigned Right_ was created (with id "parkingRightId"). At any time in the process, payments can be attached to this _Assigned Right_. Details to be discussed.
 
