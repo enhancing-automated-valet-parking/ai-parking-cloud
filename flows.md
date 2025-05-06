@@ -168,7 +168,7 @@ The inventory system will respond with something like this:
 
 The caller will then have to query the details of the referenced right specification(s). _Right Specifications_ provide further details on constraints and eligibility criteria that apply in a certain place.
 
-```
+```bash
 GET /rights/specs/publicParkingRightSpec?expand=all
 ```
 
@@ -217,6 +217,12 @@ Please note that - in this first simple example - the system only returns a sing
 Depending on the user interaction design of the user frontend, the system would now query tariff details to answer the "How much does it cost?" question (or do this later when requesting a quote in preparation of a reservation).  
 
 ### Example
+Read the rate/tariff details. The corresponding reference can be taken from the _Right Specification_ details.
+
+```bash
+GET /rates/publicTariffId?expand=all
+```
+
 ```json
 {
     "id": "publicTariffId",
@@ -286,7 +292,7 @@ Once the driver has - based on the previously obtained inventory information - d
 ### Example: obtain a quote
 When the POST /quotes QuoteRightRequest is sent, the right specification to be applied shall be referenced. The list of available right specifications was retrieved earlier during the discovery process (in our first example, it was just one).
 
-```
+```bash
 POST /quotes
 ```
 _(the request body contains a so-called QuoteRightRequest)_
@@ -348,7 +354,7 @@ In our example, the requested options can be met. The user backend is informed a
 
 The user backend can then confirm the booking by asking the parking backend to create a corresponding APDS assigned right.
 
-```
+```bash
 POST /rights/assigned
 ```
 The request body contains the reference to the previously obtained quote as well as identification information of the vehicle.
@@ -396,7 +402,7 @@ This process takes place entirely under the control of the Parking Operator's ma
 In APDS, a _Session_ is the act of making use of a previously-obtained _Assigned Right_ (parking right). In our case, this happened during the booking process. Now that the vehicle has entered the facility, the Parking Operator's management system will have to start a _Parking Session_ backed by the aforementioned _Assigned Right_. All stakeholders with a need-to-know shall be informed about this. To do so, the Parking Operator's management system sends a new _Session_ record to the Platform.
 
 ### Example: send new Session
-```
+```bash
 POST /sessions
 ```
 
@@ -440,7 +446,7 @@ Note: even though the booking was made for a specific time window, this doesn't 
 If the local parking system provides this type of data, up-to-date occupancy information can be queried for better guidance.
 
 ### Example: occupancy information about the area
-```curl
+```bash
 GET /places/carParkId1?expand=occupancy
 ```
 
@@ -480,7 +486,7 @@ Handled by the local parking management system. A variety of (local) policies mi
 ## Exit: Stop parking transaction
 Now that the vehicle has left the parking location, the Parking Operator's management system will provide an update of the _Session_, this time including the actual end time of the parking session.
 
-```
+```bash
 PUT /sessions/parkingSessionId
 ```
 
@@ -530,7 +536,7 @@ During the booking, an _Assigned Right_ was created (with id "parkingRightId"). 
 ### Example: posting a payment
 Below is an example for a payment posted to the previously-issued _Assigned Right_. In APDS, a _Payment_ and its _Payment Lines_ offer identifiers which can be used to "tag" payments and facilitate the processing in connected billing and accounting systems. This will require agreed-upon conventions and identifiers that are not standardised by APDS but are rather specific to a particular, use case / eco system / project.
 
-```
+```bash
 PUT /rights/assigned/parkingRightId
 ```
 
@@ -572,6 +578,7 @@ _(will be looked at at a later point)_
 ---
 
 # Use Case 2: Manual Parking (L2 parking assistance)
+_(not final yet)_
 This is the use case where a vehicle equipped with L2 parking assistance is being used. The use case is almost identical to to [Use Case 1](#use-case-1-manual-parking). An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
@@ -718,7 +725,7 @@ The inventory system will respond with something like this:
 
 The caller will then have to query the details of the referenced right specification(s). _Right Specifications_ provide further details on constraints and eligibility criteria that apply in a certain place.
 
-```
+```bash
 GET /rights/specs/publicParkingRightSpec?expand=all
 ```
 
@@ -836,7 +843,7 @@ Once the driver has - based on the previously obtained inventory information - d
 ### Example: obtain a quote
 When the POST /quotes QuoteRightRequest is sent, the right specification to be applied shall be referenced. The list of available right specifications was retrieved earlier during the discovery process (in our first example, it was just one).
 
-```
+```bash
 POST /quotes
 ```
 _(the request body contains a so-called QuoteRightRequest)_
@@ -898,7 +905,7 @@ In our example, the requested options can be met. The user backend is informed a
 
 The user backend can then confirm the booking by asking the parking backend to create a corresponding APDS assigned right.
 
-```
+```bash
 POST /rights/assigned
 ```
 The request body contains the reference to the previously obtained quote as well as identification information of the vehicle.
@@ -946,7 +953,7 @@ This process takes place entirely under the control of the Parking Operator's ma
 In APDS, a _Session_ is the act of making use of a previously-obtained _Assigned Right_ (parking right). In our case, this happened during the booking process. Now that the vehicle has entered the facility, the Parking Operator's management system will have to start a _Parking Session_ backed by the aforementioned _Assigned Right_. All stakeholders with a need-to-know shall be informed about this. To do so, the Parking Operator's management system sends a new _Session_ record to the Platform.
 
 ### Example: send new Session
-```
+```bash
 POST /sessions
 ```
 
@@ -990,7 +997,7 @@ Note: even though the booking was made for a specific time window, this doesn't 
 If the local parking system provides this type of data, up-to-date occupancy information can be queried for better guidance.
 
 ### Example: occupancy information about the area
-```curl
+```bash
 GET /places/carParkId1?expand=occupancy
 ```
 
@@ -1030,7 +1037,7 @@ Handled by the local parking management system. A variety of (local) policies mi
 ## Exit: Stop parking transaction
 Now that the vehicle has left the parking location, the Parking Operator's management system will provide an update of the _Session_, this time including the actual end time of the parking session.
 
-```
+```bash
 PUT /sessions/parkingSessionId
 ```
 
@@ -1078,7 +1085,7 @@ Provided the booking boundaries haven't been exceeded, the monetary value of the
 During the booking, an _Assigned Right_ was created (with id "parkingRightId"). At any time in the process, payments can be attached to this _Assigned Right_. Details to be discussed.
 
 ### Example: posting a payment
-```
+```bash
 PUT /rights/assigned/parkingRightId
 ```
 
@@ -1119,6 +1126,7 @@ _(will be looked at at a later point)_
 ---
 
 # Use Case 3: AVP Parking L4 (type 1,2,3)
+_(not final yet)_
 This is the use case where a vehicle or a vehicle equipped with L4 capabilities is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
@@ -1273,7 +1281,7 @@ The inventory system will respond with something like this:
 ```
 The caller will then have to query the details of the referenced right specification.
 
-```
+```bash
 GET /rights/specs/avpRightSpec?expand=all
 ```
 
@@ -1399,7 +1407,7 @@ Once the driver has - based on the previously obtained inventory information - d
 
 When the POST /quotes QuoteRightRequest is sent, a right specification shall be used that has a matching vehicleCharacteristics. The list of available right specifications was retrieved earlier during the discovery process.
 
-```
+```bash
 POST /quotes
 ```
 _(the request body contains a so-called QuoteRightRequest)_
@@ -1473,7 +1481,7 @@ In our example, the requested options can be met. The user backend is informed a
 
 The user backend can then confirm the booking by asking the parking backend to create a corresponding APDS assigned right.
 
-```
+```bash
 POST /rights/assigned
 ```
 The request body contains the reference to the previously obtained quote
