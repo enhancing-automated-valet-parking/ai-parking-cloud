@@ -9,16 +9,16 @@ sidemain:
         url: /platform_outline
       - title: "Use Cases"
         url: /use_cases
+  - title: "Presentations"
+    children:
+      - title: "Customer Journey"
+        url: /customer_journey
   - title: "Sample Flow"
     children:
       - title: "Flows"
         url: /flows
       - title: "Use Case 1: Manual Parking"
-        utl: /flows#use-case-1-manual-parking
-  - title: "Presentations"
-    children:
-      - title: "Customer Journey"
-        url: /customer_journey
+        url: /flows#use-case-1-manual-parking
   - title: Platform API 
     children:
       - title: API Specification
