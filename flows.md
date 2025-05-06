@@ -276,7 +276,7 @@ Depending on the user interaction design of the user frontend, the system would 
 }
 ```
 
-## Before and while driving: selecting a parking facility (and making a reservation)
+## Before and while driving: selecting a parking facility (book)
 Once the driver has - based on the previously obtained inventory information - decided to use the car park at the destination, the user backend will have to  
 * obtain a binding offer (APDS term: quote) and then
 * confirm this (i.e. book it)
@@ -295,26 +295,13 @@ _(the request body contains a so-called QuoteRightRequest)_
   "periodStart": "2025-03-31T17:00:00Z",
   "periodEnd": "2025-04-02T10:00:00Z",
   "requestTime": "2025-03-10T18:32:12Z",
-  "eligibility": {
-    "qualifications": [
-      {
-        "vehicleCharacteristics": [
-          {
-            "avpClassification": {
-              "entryDefinedValue": "avpVehicleType001"
-            }
-          }
-        ]
-      }
-    ]
-  },
   "referencedRightSpecification": {
-    "id": "avpRightSpec",
+    "id": "publicParkingRightSpec",
     "version": 1
   }
 }
 ```
-Based on this request, the parking aggregator / the parking operator backend system will check availability of parking services in this car park for this period of time.
+Based on this request, the parking aggregator / the parking operator backend system will check availability of parking services in this car park during this period of time.
 
 The backend will then respond with a corresponding _QuoteRightResponse_:
 
@@ -362,9 +349,22 @@ The user backend can then confirm the booking by asking the parking backend to c
 ```
 POST /rights/assigned
 ```
-The request body contains the reference to the previously obtained quote
+The request body contains the reference to the previously obtained quote as well as identification information of the vehicle.
 ```json
 {
+  "id": "parkingRightId",
+  "version": 1,
+  "rightHolder": {
+    "credentials": [
+      {
+        "type": "licensePlate",
+        "identifier": {
+          "id": "MG-MM 267",
+          "className": "DELicensePlate"
+        }
+      }
+    ]
+  }
   "quoteResponseId": {
     "id": "responseId",
     "version": 1
@@ -399,8 +399,173 @@ POST /sessions
 ```
 
 ```json
+{
+  "id": "parkingSessionId",
+  "version": 1,
+  "actualStart": "2025-03-31T17:00:00Z",
+  "initiator": "BMW",
+  "hierarchyElement": {
+    "id": "carPark1Id",
+    "version": 1
+  },
+  "credentials": [
+    {
+      "type": "licensePlate",
+      "identifier": {
+        "id": "MG-MM 267",
+        "className": "DELicensePlate"
+      }
+    } 
+  ],
+  "segments": [
+    {
+      "id": "parkingSessiondId-001",
+      "version": 1,
+      "actualStart": "2025-03-31T17:00:00Z",
+      "assignedRight": {
+        "id": "parkingRightId",
+        "version": 1
+      },
+      "validationType": [ "licensePlate"]
+    }
+  ]
+}
+```
+
+Note: even though the booking was made for a specific time window, this doesn't necessarily mean that the customer will exactly behave like this. Therefore, the communicated _Session_ record doesn't yet include an end time (neither for the _Session_, nor for the one _Segment_).
+
+## Where is the spot: Occupancy information
+If the local parking system provides this type of data, up-to-date occupancy information can be queried for better guidance.
+
+### Example: occupancy information about the area
+```curl
+GET /places/carParkId1?expand=occupancy
+```
+
+```json
+{
+  "id": "carParkId",
+  "version": 1,
+  "supply": {
+    "supplyQuantity": 552,
+    "supplyViewType": "spaceView"
+  },
+  "demandTable": {
+    "frequency": "PT3M",
+    "timestamp": "2025-03-31T17:01:00Z",
+    "demandType": [
+      {
+        "count": 234,
+        "occupancyCalculation": "counted",
+        "recordDateTime": "2025-03-31T17:01:00Z",
+      }
+    ]
+  }
+}
+```
+## Navigation to spot: guiding of customer within garage
+This is currently not standardised (and most of it probably won't be with the exception of a potential map interface standard).
+
+## Park in/out: manuall park in/out
+Done by the customer (driver).
+
+## Navigation to exit: guiding of customer within garage
+This is currently not standardised (and most of it probably won't be with the exception of a potential map interface standard).
+
+## Exit: open barrier
+Handled by the local parking management system. A variety of (local) policies might have to be checked before open the barrier. This is currently out of scope.
+
+## Exit:  stop parking transaction
+Now that the vehicle has left the parking location, the Parking Operator's management system will provide an update of the _Session_, this time including the actual end time of the parking session.
 
 ```
+PUT /sessions/parkingSessionId
+```
+
+```json
+{
+  "id": "parkingSessionId",
+  "version": 1,
+  "actualStart": "2025-03-31T17:00:00Z",
+  "actualEnd": "2025-04-02T09:55:00Z",
+  "initiator": "BMW",
+  "hierarchyElement": {
+    "id": "carPark1Id",
+    "version": 1
+  },
+  "credentials": [
+    {
+      "type": "licensePlate",
+      "identifier": {
+        "id": "MG-MM 267",
+        "className": "DELicensePlate"
+      }
+    } 
+  ],
+  "segments": [
+    {
+      "id": "parkingSessiondId-001",
+      "version": 1,
+      "actualStart": "2025-03-31T17:00:00Z",
+      "actualEnd": "2025-04-02T09:55:00Z",
+      "assignedRight": {
+        "id": "parkingRightId",
+        "version": 1
+      },
+      "validationType": [ "licensePlate"]
+    }
+  ]
+}
+```
+
+## Payment: charge parking fee to customer account
+The details of payment flow require further discussion in the team as there are many different ways of handling this.
+
+Provided the booking boundaries haven't been exceeded, the monetary value of the parking session is known at this point. It was already communicated along the lines of the quote and booking process. See [Example: obtain a quote](Example:-obtain-a-quote).
+
+During the booking, an _Assigned Right_ was created (with id "parkingRightId"). At any time in the process, payments can be attached to this _Assigned Right_. Details to be discussed.
+
+### Example: posting a payment
+```
+PUT /rights/assigned/parkingRightId
+```
+
+```json
+{
+  "id": "parkingRightId",
+  "version": 1,
+
+  "payments": [
+    {
+      "id": "payment1Id",
+      "version": 1,
+      "dateCollected": "2025-03-31T17:00:00Z",
+      "dateAuthorised": "2025-03-31T16:57:00Z",
+      "transactionID": "ZXparkingRightIdpayment1Id-001",
+      "idCode": "INTERPROVIDERPAYMENT",
+      "startPeriodCovered": "2025-03-31T17:00:00Z",
+      "endPeriodCovered": "2025-04-02T09:55:00Z",
+      "paymentLines": [
+          "id": "paymentLine1Id",
+          "version": 1,
+          "identifierId": "TBD",
+          "idCode": "TBD",
+          "paymentType": "payment",
+          "value": {
+            "currencyType": "EUR",
+            "currencyValue": 30
+          }
+      ]
+    }
+  ]
+}
+```
+
+
+## Payment: charge charging fee to customer account
+_(will be looked at at a later point)_
+
+---
 
 # Use Case 2: Manual Parking (L2 parking assistance)
 This is the basic use case where a traditional vehicle or a vehicle equipped with L2 parking assistance is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:

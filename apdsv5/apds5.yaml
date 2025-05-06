@@ -1156,7 +1156,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AssignedRight'
+              oneOf:
+                - $ref: '#/components/schemas/AssignedRight'
+                - type: object
+                  properties:
+                    id: 
+                      type: string
+                      description: unique id of the assigned right to be issued
+                    version:
+                      type: integer
+                      description: version of the right to be issued
+                    rightHolder:
+                      $ref: '#/components/schemas/AssignedRightHolder'
+                    quoteResponseId:
+                      $ref: '#/components/schemas/VersionedReference'
+                    optionId:
+                      $ref: '#/components/schemas/VersionedReference'
+            examples:
+              createRightFromQuote:
+                description: creates a new assigned right from a previously-obtained _QuoteResponseId_
+                value:
+                  id: 3be6acdc-239a-4731-813a-942f15b42488
+                  version: 1
+                  rightHolder:
+                    credentials:
+                      - type: licensePlate
+                        identifier:
+                          id: ABC123
+                          className: EULicensePlate 
+                  quoteResponseId:
+                    id: bfcbb162-3a15-4354-bb39-1a3c8f22f39e
+                    version: 1
+                  
       responses:
         201:
           description: Created
@@ -6415,6 +6446,192 @@ components:
           $ref: '#/components/schemas/TimeUnitRelativeEnum'
         latestEndRelative:
           $ref: '#/components/schemas/TimeUnitRelativeEnum'
+
+    Identifiers:
+      type: object
+      title: Identifiers
+      description: Class containing information referencing one rateTable and one related rightSpecification
+      properties:
+        rateTableId:
+          $ref: '#/components/schemas/VersionedReference'
+        rightSpecificationId:
+           $ref: '#/components/schemas/VersionedReference'
+      required:
+        - rateTableId
+        - rightSpecificationId
+
+    QuoteExpiration:
+      type: object
+      title: QuoteExpiration
+      description: Class defining conditions indicating the end of the validity of a Quote
+      properties:
+        expiresDateTime:
+          type: string
+          format: date-time
+          description: 'defines a specific date/time that the Option and thus the FinancialQuote is valid '
+        firstComeFirstServed:
+          type: boolean
+          description: 'a Boolean value shows that the availability of an Option and thus FinancialQuote are available to the requester on a first come first served basis, with no assurance that the advertised RightSpecification will be available based on actual demand'
+      required:
+        - firstComeFirstServed
+
+    FinancialQuote:
+      type: object
+      title: FinancialQuote
+      description: Class containing information on financial value of a Quote
+      properties:
+        serviceProvider:
+          $ref: '#/components/schemas/VersionedReference'
+        taxIncluded:
+          type: boolean
+          description: 'Whether tax included in monetary value, if yes (TRUE), if not (FALSE).'
+        transactionId:
+          type: string
+          description: 'Identifier for the transaction (e.g. reservation number, credit card transaction reference) as agreed upon by the two entities sharing data.'
+        value:
+          $ref: '#/components/schemas/AmountInCurrency'
+      required:
+        - taxIncluded
+        - value
+
+    Option:
+      title: Option
+      description: Class providing one option to a quote request
+      allOf:
+        - $ref: '#/components/schemas/VersionedIdentity'
+        - type: object
+          properties:
+            elementId:
+              $ref: '#/components/schemas/VersionedReference'
+            exact:
+              type: boolean
+              description: indicates the supplied Option fully covers the time period requested
+            quoteExpiration:
+              $ref: '#/components/schemas/QuoteExpiration'
+            identifiers:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/Identifiers'
+            financialQuote:
+              $ref: '#/components/schemas/FinancialQuote'
+          required:
+            - quoteExpiration
+            - financialQuote
+
+    ReferencedRightSpecification:
+      title: ReferencedRightSpecification
+      type: object
+      description: class to support reference to a RightSpecification
+      properties:
+        elementId:
+          $ref: '#/components/schemas/VersionedReference'
+        rightSpecificationId:
+          $ref: '#/components/schemas/VersionedReference'
+      required:
+        - rightSpecificationId
+
+    ResponseReasonEnum:
+      type: string
+      title: ResponseReasonEnum
+      description: |
+        A list of supported reasons if a requested quote response is not provided
+
+        * `eligibilityRequirementNotMet`: a stated eligibility requirement is not considered to be met
+        * `noAvailability`: No availability for request
+        * `noMatchingSpecification`: No matching rights specification found
+        * `other`: other reason (reason not given)
+        * `rightSpecificationNotAvailableAtRequestedTimes`: the requested specification is not available at the requested time
+      enum:
+        - eligibilityRequirementNotMet
+        - noAvailability
+        - noMatchingSpecification
+        - other
+        - rightSpecificationNotAvailableAtRequestedTimes
+
+    ReferenceToQuote:
+      title: ReferenceToQuote
+      description: versioned reference to a quote
+      type: object
+      properties:
+        quoteResponseId:
+          $ref: '#/components/schemas/VersionedReference'
+        optionId:
+          $ref: '#/components/schemas/VersionedReference'
+      required:
+        - quoteResponseId
+
+    QuoteRightResponse:
+      title: QuoteRightResponse
+      description: class containing data to support response to request for quote for a new transaction
+      allOf:
+        - $ref: '#/components/schemas/VersionedIdentity'
+        - type: object
+          properties:
+            start:
+              type: string
+              description: date/time for the start of the proposed new transaction
+              format: date-time
+            end:
+              type: string
+              description: date/time for the end of the proposed new transaction
+              format: date-time
+            requestTime:
+              type: string
+              description: date/time at which the request for a quote was recorded/registered by the supplier
+              format: date-time
+            reason:
+              $ref: '#/components/schemas/ResponseReasonEnum'
+            quoteRequestId:
+              $ref: '#/components/schemas/VersionedReference'
+            responseTime:
+              description: date/time at which the response is made by the supplier
+              format: date-time
+              type: string
+            options:
+              type: array
+              items:
+                $ref: '#/components/schemas/Option'
+          required:
+            - start
+            - end
+            - requestTime
+            - quoteRequestId
+            - responseTime
+
+    QuoteRightRequest:
+      title: QuoteRightRequest
+      description: class containing data elements required to request a quote for a new transaction
+      allOf:
+        - $ref: '#/components/schemas/VersionedIdentity'
+        - type: object
+          properties:
+            eligibility:
+              $ref: '#/components/schemas/Eligibility'
+            referencedRightSpecifications:
+              type: array
+              items:
+                $ref: '#/components/schemas/ReferencedRightSpecification'
+            periodStart:
+              type: string
+              description: requested date/time for the start of a proposed new transaction
+              format: date-time
+            periodEnd:
+              type: string
+              description: requested date/time for the end of a proposed new transaction
+              format: date-time
+            requestTime:
+              type: string
+              format: date-time
+              description: date/time at which the request for a quote was made
+            timePeriods:
+              type: array
+              description: requested duration for the proposed new transaction
+              items:
+                $ref: '#/components/schemas/Duration'
+          required:
+            - periodStart
+            - requestTime
 
     EventTypeEnum:
       title: EventTypeEnum
