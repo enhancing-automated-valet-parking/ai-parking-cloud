@@ -29,4 +29,6 @@ sidemain:
     children:
       - title: API Specification
         url: /apdsv5/index.html
+      - title: API Testing
+        url: /api_test
 
