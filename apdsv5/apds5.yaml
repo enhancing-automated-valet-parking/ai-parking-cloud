@@ -17,8 +17,9 @@ info:
    The _APDS_ working group has also created a comprehensive representation of the APDS data model in form of an **API**. This interface is documented using the [OpenAPI Specification Standard](https://www.openapis.org) originally initiated by [Swagger](https://swagger.io) and then taken over by the **Open APIs** initiative. Depending on the particular application, there might be other ways to describe the model and a derived interface. But _APDS_ figured it would be a good starting point for adopters to have something readily available to base their work on. This repository contains said **APS OpenAPI Specification**.
 
    # EAVP 
-   # API
-   This repository holds a copy of an APDS work-in-progress version intended to be released in the future. 
+   ## API
+   This repository holds a copy of an APDS work-in-progress version intended to be released in the future.  
+   EAVP decided to base their work on APDS. 
 
 
 servers:
