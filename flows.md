@@ -14,15 +14,7 @@ The information is stored in an APDS conformant __hierarchy__.
 
 Example: an airport has two car parks, one capable of AVP and another one (regular car park with no additional services)
 
-CAMPUS  
-  |  
-  +-- PLACE #1  
-  |       |  
-  |       +-- SupplementalServiceFacility (avpDropOff, avpPickUp, avpDropOffAndPickup)  
-  |       |  
-  |       +-- SupplementalServiceFacility (automatedEVCharging)  
-  |  
-  +-- PLACE #2  
+<img src="https://docs.ai-parking.cloud/assets/images/flows/place_hierarchy_1.png">
 
 Any system acting as a user/client towards the inventory server can read this hierarchy information and e.g. store it locally (and refresh it sporadically).  
 
