@@ -19,8 +19,12 @@ sidemain:
         url: /flows
       - title: "Use Case 1: Manual Parking"
         url: /flows#use-case-1-manual-parking
-      - title: "Use Case 2: Manual Parking (L2 parking assistance)"
+      - title: "Use Case 2: Manual Parking (L2)"
         url: /flows#use-case-2-manual-parking-l2-parking-assistance   
+      - title: "Use Case 3: AVP Parking (L4)"
+        url: /flows#use-case-3-avp-parking-l4
+      - title: "Prerequisites and Conventions"
+        url: /flows#prerequisites-and-conventions
   - title: Platform API 
     children:
       - title: API Specification

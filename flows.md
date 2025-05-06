@@ -1331,7 +1331,7 @@ With that, the AVP parking service has been booked, and the car park should be a
 
 
 
-## Prerequisites
+## Prerequisites and Conventions
 ### OEM-defined classification
 The OEMs offering AVP will have to mutually maintain a publicly available list of AVP vehicle classifications.
 
