@@ -6,7 +6,6 @@ title: Sample Flows
 sort: 0
 ---
 
-# API Notes
 
 ## Inventory Information Server (Parking Aggregator / Operator)
 This is a system holding inventory information about connected parking locations.  
@@ -14,12 +13,44 @@ The information is stored in an APDS conformant __hierarchy__.
 
 Example: an airport has two car parks, one capable of AVP and another one (regular car park with no additional services)
 
-<img src="https://docs.ai-parking.cloud/assets/images/flows/place_hierarchy_1.png">
+<img src="https://docs.ai-parking.cloud/assets/images/flows/place_hierarchy_1.png" width="80%">
 
 Any system acting as a user/client towards the inventory server can read this hierarchy information and e.g. store it locally (and refresh it sporadically).  
 
+# Use Case 1: Manual Parking
+This is the basic use case where a traditional vehicle or a vehicle equipped with L2 parking assistance is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/assets/images/usecases/us_cases.png). In this section, we'll look at the following steps of this use case:
 
-## Availability query
+* Before and while driving
+  * Where is the parking facility?
+  * How does it cost?
+  * Select of a parking facility
+  * Activation of in-vehicle navigation to entry
+* Arriving/Entry
+  * Open barrier
+  * start parking transaction
+* Where is the spot?
+  * Occupancy information about area
+  * Occupancy information about spot
+* Navigationto spot
+  * Guiding of customer within garage and 3D navigation map to free spot
+* Park in/out
+  * Manual park in/out
+  * In slot or manual relocation for charing and other value-added services
+* Charging
+  * Manual plugin of cable
+  * Manual selection of tariff
+  * Manual start of charging service
+* Navigation to exit
+  * Guiding of customer within garage and 3D navigation map from slot to exit
+* Exit
+  * Open barrier
+  * Stop parking transaction
+* Payment
+  * Charge parking fee to customer account
+  * Charge charging fee to customer account
+
+
+## Availability query (where is the parking facility, and how much does it cost?)
 When the GET /places request is made, desired service types shall be specified in the query. The caller can differentiate between __required qualifications__ and __optional qualifications__.  
 
 If none of the parking locations in the inventory matches the _required qualifications_, the result set will be empty. If the qualifications are tagged as _optional_, the result might as well include non-AVP locations. Especially in the early days of publicly available AVP, this might be required/helpful due to an initially low number of matching locations.  
