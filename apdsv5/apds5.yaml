@@ -5,7 +5,9 @@ info:
   version: "5.0.0WIP"
 
   description: |-
-   <div><a href="https://docs.ai-parking.cloud">HOME</a></div> 
+   # [`Home`](https://docs.ai-parking.cloud)
+
+
    # APDS - An Introduction
 
    ## Context, Motivation
