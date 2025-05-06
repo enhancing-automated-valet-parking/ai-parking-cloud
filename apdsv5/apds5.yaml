@@ -30,9 +30,6 @@ servers:
   - url: "https://api.ai-parking.cloud"
 
 tags:
-  - name: Assigned Rights
-    description: |- 
-      In APDS, _Assigned Rights_ are the representation of parking rights. _Assigned Rights_ are issued by parking operators and/or service providers. As soon as a parking right has been issued to a driver, it is sent to the Platform by the issuing entity. _Assigned Rights_ are the most important source of information for connected enforcement systems to check the eligibility of a parked vehicle.
   - name: Places
     description: |-
       The _Place_ Hierarchy endpoints accept/provide details about parking locations (_Places_).
@@ -42,6 +39,9 @@ tags:
   - name: Right Specifications
     description: |-
       The _Right Specifications_ endpoints accept/provide information about charging hours, eligibility criteria and point to applicable tariffs. Each _Right Specification_ applies to one or more _Places_. 
+  - name: Assigned Rights
+    description: |- 
+      In APDS, _Assigned Rights_ are the representation of parking rights. _Assigned Rights_ are issued by parking operators and/or service providers. As soon as a parking right has been issued to a driver, it is sent to the Platform by the issuing entity. _Assigned Rights_ are the most important source of information for connected enforcement systems to check the eligibility of a parked vehicle.
   - name: Sessions
     description: |-
       In APDS, _Sessions_ describe the act of actively making use of a previously-obtained parking right (_Assigned Right_). When drivers park their vehicles or leave the parking location, the service provider’s backend or the operator’s parking management system report this to the Platform. _Session_ data can later be read from the Platform to support use cases like .e.g.
