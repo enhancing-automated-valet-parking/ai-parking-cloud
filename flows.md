@@ -18,7 +18,7 @@ Example: an airport has two car parks, one capable of AVP and another one (regul
 Any system acting as a user/client towards the inventory server can read this hierarchy information and e.g. store it locally (and refresh it sporadically).  
 
 # Use Case 1: Manual Parking
-This is the basic use case where a traditional vehicle is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/assets/images/usecases/us_cases.png). In this section, we'll look at the following steps of this use case:
+This is the basic use case where a traditional vehicle is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
   * Where is the parking facility?
@@ -376,7 +376,7 @@ The parking system will then have to confirm this:
 With that, the AVP parking service has been booked, and the car park should be awaiting the drivers arrival at the specified date and time.
 
 # Use Case 2: Manual Parking (L2 parking assistance)
-This is the basic use case where a traditional vehicle or a vehicle equipped with L2 parking assistance is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/assets/images/usecases/us_cases.png). In this section, we'll look at the following steps of this use case:
+This is the basic use case where a traditional vehicle or a vehicle equipped with L2 parking assistance is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
   * Where is the parking facility?
@@ -757,7 +757,7 @@ With that, the AVP parking service has been booked, and the car park should be a
 
 
 # Use Case 3: AVP Parking L4 (type 1,2,3)
-This is the use case where a vehicle or a vehicle equipped with L4 capabilities is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/assets/images/usecases/us_cases.png). In this section, we'll look at the following steps of this use case:
+This is the use case where a vehicle or a vehicle equipped with L4 capabilities is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
   * Where is the AVP parking facility?
