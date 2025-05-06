@@ -17,12 +17,12 @@ Example: an airport has two car parks, one capable of AVP and another one (regul
 
 Any system acting as a user/client towards the inventory server can read this hierarchy information and e.g. store it locally (and refresh it sporadically).  
 
-# Use Case 1: Manual Parking
+# Use Case 1+2: Manual Parking (with or without L2 assistance)
 This is the basic use case where a traditional vehicle or a vehicle equipped with L2 parking assistance is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/assets/images/usecases/us_cases.png). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
   * Where is the parking facility?
-  * How does it cost?
+  * How much does it cost?
   * Select of a parking facility
   * Activation of in-vehicle navigation to entry
 * Arriving/Entry
@@ -51,7 +51,7 @@ This is the basic use case where a traditional vehicle or a vehicle equipped wit
 
 
 ## Availability query (where is the parking facility, and how much does it cost?)
-When the GET /places request is made, desired service types shall be specified in the query. The caller can differentiate between __required qualifications__ and __optional qualifications__.  
+When the GET /places request is made, desired service types can be specified in the query. The caller can differentiate between __required qualifications__ and __optional qualifications__.  
 
 If none of the parking locations in the inventory matches the _required qualifications_, the result set will be empty. If the qualifications are tagged as _optional_, the result might as well include non-AVP locations. Especially in the early days of publicly available AVP, this might be required/helpful due to an initially low number of matching locations.  
 
@@ -60,7 +60,10 @@ If none of the parking locations in the inventory matches the _required qualific
 The user backend serving a vehicle's user frontend wants to find out if AVP services are available at a specific destination:  
 
 ```
-GET /places?expand=all&latitude=48.177624&longitude=11.556482&radius=1000&required_qualifications=avp&vehicle_classification=avpVehicleType001
+GET /places \
+    ?expand=all&latitude=48.177624&longitude=11.556482&radius=1000\
+    &required_qualifications=avp\
+    &vehicle_classification=avpVehicleType001
 ```
 
 * the _expand_ parameter value of _all_ indicates that the response shall include all details about the matching places
