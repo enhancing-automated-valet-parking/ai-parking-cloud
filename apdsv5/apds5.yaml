@@ -5512,6 +5512,11 @@ components:
           maxItems: 2
           items:
             $ref: '#/components/schemas/WidthCharacteristic'
+        vehicleCharacteristics:
+          type: array
+          description: Qualify based on the vehicle's specifications in terms of service applicability (AVP, automated charging, ...)
+          items:
+            $ref: '#/components/schemas/VehicleCharacteristics'
         vehicleTypes:
           type: array
           description: Qualify based on the type of vehicle.
@@ -6632,6 +6637,34 @@ components:
           required:
             - periodStart
             - requestTime
+
+
+    VehicleCharacteristics:
+      title: VehicleCharacteristics
+      description: |-
+        provides detailed vehicle characteristics for assessing applicability of services (e.g. AVP, automated charging)
+      type: object
+      properties:
+        automatedChargingSpecification:
+          $ref: '#/components/schemas/VehicleAutomatedChargingSpecification'
+        avpClassification:
+          $ref: '#/components/schemas/ReferencedCodeListEntry'
+
+    VehicleAutomatedChargingSpecification:
+      title: VehicleAutomatedChargingSpecification
+      description: |-
+        provides requirements/constraints concerning the automated charging of a vehicle
+        as an array of the form [x1, x2], [y1, y2], [z1, z2], [rx1, rx2], [ry1, ry2], [rz1, rz2] 
+        (min/max distance in x/y/z direction and min/max rotation in x/y/z axis
+      type: object
+      properties:
+        matingSpace:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+
 
     EventTypeEnum:
       title: EventTypeEnum
