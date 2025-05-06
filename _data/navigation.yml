@@ -13,8 +13,8 @@ sidemain:
         url: /flows
   - title: "Presentations"
     children:
-      - title: "User Journey"
-        url: /user_journey
+      - title: "Customer Journey"
+        url: /customer_journey
   - title: Platform API 
     children:
       - title: API Specification
