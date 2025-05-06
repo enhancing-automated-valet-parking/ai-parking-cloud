@@ -9,6 +9,8 @@ sort: 0
 ## Introduction
 This document provides a walkthrough through different use cases identified by the EAVP platform team. It follows the flow of the [Customer Journey](https://docs.ai-parking.cloud/customer_journey) and provides request and response examples based on the underlying [APDS API](https://docs.ai-parking.cloud/apdsv5/index.html). Visit this API specification to find additional details on the engaged model classes and their attributes.
 
+The document is currently work in progress. Updates to it are possible (and likely) as the workgroup continues.
+
 ## Inventory Information Server (Parking Aggregator / Operator)
 This is a system holding inventory information about connected parking locations.  
 The information is stored in an APDS conformant __hierarchy__.
@@ -475,7 +477,7 @@ This is currently not standardised (and most of it probably won't be with the ex
 ## Exit: open barrier
 Handled by the local parking management system. A variety of (local) policies might have to be checked before open the barrier. This is currently out of scope.
 
-## Exit:  stop parking transaction
+## Exit: Stop parking transaction
 Now that the vehicle has left the parking location, the Parking Operator's management system will provide an update of the _Session_, this time including the actual end time of the parking session.
 
 ```
@@ -526,6 +528,8 @@ Provided the booking boundaries haven't been exceeded, the monetary value of the
 During the booking, an _Assigned Right_ was created (with id "parkingRightId"). At any time in the process, payments can be attached to this _Assigned Right_. Details to be discussed.
 
 ### Example: posting a payment
+Below is an example for a payment posted to the previously-issued _Assigned Right_. In APDS, a _Payment_ and its _Payment Lines_ offer identifiers which can be used to "tag" payments and facilitate the processing in connected billing and accounting systems. This will require agreed-upon conventions and identifiers that are not standardised by APDS but are rather specific to a particular, use case / eco system / project.
+
 ```
 PUT /rights/assigned/parkingRightId
 ```
@@ -541,7 +545,7 @@ PUT /rights/assigned/parkingRightId
       "version": 1,
       "dateCollected": "2025-03-31T17:00:00Z",
       "dateAuthorised": "2025-03-31T16:57:00Z",
-      "transactionID": "ZXparkingRightIdpayment1Id-001",
+      "transactionID": "TXparkingRightIdpayment1Id-001",
       "idCode": "INTERPROVIDERPAYMENT",
       "startPeriodCovered": "2025-03-31T17:00:00Z",
       "endPeriodCovered": "2025-04-02T09:55:00Z",
@@ -568,7 +572,7 @@ _(will be looked at at a later point)_
 ---
 
 # Use Case 2: Manual Parking (L2 parking assistance)
-This is the basic use case where a traditional vehicle or a vehicle equipped with L2 parking assistance is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
+This is the use case where a vehicle equipped with L2 parking assistance is being used. The use case is almost identical to to [Use Case 1](#use-case-1-manual-parking). An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
   * Where is the parking facility?
@@ -600,27 +604,18 @@ This is the basic use case where a traditional vehicle or a vehicle equipped wit
   * Charge charging fee to customer account
 
 
-## Availability query (where is the parking facility, and how much does it cost?)
-When the GET /places request is made, desired service types can be specified in the query. The caller can differentiate between __required qualifications__ and __optional qualifications__.  
-
-If none of the parking locations in the inventory matches the _required qualifications_, the result set will be empty. If the qualifications are tagged as _optional_, the result might as well include non-AVP locations. Especially in the early days of publicly available AVP, this might be required/helpful due to an initially low number of matching locations.  
-
+## Before and while driving: where is the parking facility?
+When the GET /places request is made, certain filter criteria can be specified in the query to narrow the search result down. 
 
 ### Example
-The user backend serving a vehicle's user frontend wants to find out if AVP services are available at a specific destination:  
+The user backend serving a vehicle's user frontend wants to find parking options available at a specific destination (and in its vicinity):  
 
 ```bash
-GET /places \
-    ?expand=all&latitude=48.177624&longitude=11.556482&radius=1000\
-    &required_qualifications=avp\
-    &vehicle_classification=avpVehicleType001
+GET /places?expand=all&latitude=48.177624&longitude=11.556482&radius=1000
 ```
 
 * the _expand_ parameter value of _all_ indicates that the response shall include all details about the matching places
 * the _latitude_, _longitude_ and _radius_ parameters specify the destination and the acceptable radius around it
-* the _required_qualifications_ parameter indicates that the caller is only interested in locations that offer AVP services
-* the _vehicle_classification_ parameter specifies the AVP vehicle profile under which the vehicle falls (the classification identifiers are to be mutually defined by the OEMs)
-
 
 The inventory system will respond with something like this:
 
@@ -644,7 +639,7 @@ The inventory system will respond with something like this:
       ],
       "rightSpecifications": [
         { 
-          "id": "avpRightSpec",
+          "id": "publicParkingRightSpec",
           "version": 1
         }
       ],
@@ -720,17 +715,18 @@ The inventory system will respond with something like this:
   ]
 }
 ```
-The caller will then have to query the details of the referenced right specification.
+
+The caller will then have to query the details of the referenced right specification(s). _Right Specifications_ provide further details on constraints and eligibility criteria that apply in a certain place.
 
 ```
-GET /rights/specs/avpRightSpec?expand=all
+GET /rights/specs/publicParkingRightSpec?expand=all
 ```
 
 The inventory system will provide the requested details:  
 
 ```json
 {
-  "id": "avpRightSpec",
+  "id": "publicParkingRightSpec",
   "version": 1,
   "rateEligibility": [
     {
@@ -739,24 +735,12 @@ The inventory system will provide the requested details:
           "qualifications": [
             {
               "withReservation": true,
-              "vehicleCharacteristics": [
-                {
-                  "avpClassification": {
-                    "entryDefinedValue": "avpVehicleType001"
-                  }
-                },
-                {
-                  "avpClassification": {
-                    "entryDefinedValue": "avpVehicleType002"
-                  }
-                }
-              ] 
             } 
           ]
         }
       ],
       "rateTable": {
-        "id": "avpTariffId",
+        "id": "publicTariffId",
         "version": 1
       },
       "hierarchyElements": [
@@ -777,17 +761,20 @@ The inventory system will provide the requested details:
 }
 ```
 
-From this response, the caller can see that his vehicle is eligible to use AVP services in the car park.  
-Depending on the user interaction design of the user frontend, the system could now query tariff details (or do this later when requesting a quote in preparation of a reservation).  
+Please note that - in this first simple example - the system only returns a single parking location with just one generic right specification that applies there.
 
+## Before and while driving: how much does it cost?
+Depending on the user interaction design of the user frontend, the system would now query tariff details to answer the "How much does it cost?" question (or do this later when requesting a quote in preparation of a reservation).  
+
+### Example
 ```json
 {
-    "id": "avpTariffId",
+    "id": "publicTariffId",
     "version": 1,
     "rateTableName": [
         {
             "language": "en",
-            "string": "AVP Parking Tariff"
+            "string": "Public Parking Tariff"
         }
     ],
     "rateLineCollections": [
@@ -841,12 +828,13 @@ Depending on the user interaction design of the user frontend, the system could 
 }
 ```
 
-## Making a reservation
-Once the driver has - based on the previously obtained inventory information - decided to use the AVP car park at the destination, the user backend will have to  
+## Before and while driving: selecting a parking facility (book)
+Once the driver has - based on the previously obtained inventory information - decided to use the car park at the destination, the user backend will have to  
 * obtain a binding offer (APDS term: quote) and then
 * confirm this (i.e. book it)
 
-When the POST /quotes QuoteRightRequest is sent, a right specification shall be used that has a matching vehicleCharacteristics. The list of available right specifications was retrieved earlier during the discovery process.
+### Example: obtain a quote
+When the POST /quotes QuoteRightRequest is sent, the right specification to be applied shall be referenced. The list of available right specifications was retrieved earlier during the discovery process (in our first example, it was just one).
 
 ```
 POST /quotes
@@ -859,26 +847,13 @@ _(the request body contains a so-called QuoteRightRequest)_
   "periodStart": "2025-03-31T17:00:00Z",
   "periodEnd": "2025-04-02T10:00:00Z",
   "requestTime": "2025-03-10T18:32:12Z",
-  "eligibility": {
-    "qualifications": [
-      {
-        "vehicleCharacteristics": [
-          {
-            "avpClassification": {
-              "entryDefinedValue": "avpVehicleType001"
-            }
-          }
-        ]
-      }
-    ]
-  },
   "referencedRightSpecification": {
-    "id": "avpRightSpec",
+    "id": "publicParkingRightSpec",
     "version": 1
   }
 }
 ```
-Based on this request, the parking aggregator / the parking operator backend system will check availability of AVP services in this car park for this period of time.
+Based on this request, the parking aggregator / the parking operator backend system will check availability of parking services in this car park during this period of time.
 
 The backend will then respond with a corresponding _QuoteRightResponse_:
 
@@ -918,6 +893,7 @@ The backend will then respond with a corresponding _QuoteRightResponse_:
 }
 ```
 
+### Example: accept the quote, and make a binding booking
 In our example, the requested options can be met. The user backend is informed about the availability and the associated costs for this service. The received quote remains binding until 10pm the same day.
 
 The user backend can then confirm the booking by asking the parking backend to create a corresponding APDS assigned right.
@@ -925,9 +901,22 @@ The user backend can then confirm the booking by asking the parking backend to c
 ```
 POST /rights/assigned
 ```
-The request body contains the reference to the previously obtained quote
+The request body contains the reference to the previously obtained quote as well as identification information of the vehicle.
 ```json
 {
+  "id": "parkingRightId",
+  "version": 1,
+  "rightHolder": {
+    "credentials": [
+      {
+        "type": "licensePlate",
+        "identifier": {
+          "id": "MG-MM 267",
+          "className": "DELicensePlate"
+        }
+      }
+    ]
+  }
   "quoteResponseId": {
     "id": "responseId",
     "version": 1
@@ -945,8 +934,189 @@ The parking system will then have to confirm this:
 }
 ```
 
-With that, the AVP parking service has been booked, and the car park should be awaiting the drivers arrival at the specified date and time.
+With that, the parking service has been booked, and the car park should be awaiting the drivers arrival at the specified date and time.
 
+## Before and while driving: Activation of in-vehicle navigation to entry
+This process takes place entirely under the control of the OEM and does not require joint standardisation.
+
+## Arriving/Entry: open barrier
+This process takes place entirely under the control of the Parking Operator's management system and does not require joint standardisation. Obviously, the parking facility will have to be equipped with ANPR technology (or other means of identification like e.g. RFID) to recognize the vehicle and the associated booking.
+
+## Arriving/Entry: start parking transaction
+In APDS, a _Session_ is the act of making use of a previously-obtained _Assigned Right_ (parking right). In our case, this happened during the booking process. Now that the vehicle has entered the facility, the Parking Operator's management system will have to start a _Parking Session_ backed by the aforementioned _Assigned Right_. All stakeholders with a need-to-know shall be informed about this. To do so, the Parking Operator's management system sends a new _Session_ record to the Platform.
+
+### Example: send new Session
+```
+POST /sessions
+```
+
+```json
+{
+  "id": "parkingSessionId",
+  "version": 1,
+  "actualStart": "2025-03-31T17:00:00Z",
+  "initiator": "BMW",
+  "hierarchyElement": {
+    "id": "carPark1Id",
+    "version": 1
+  },
+  "credentials": [
+    {
+      "type": "licensePlate",
+      "identifier": {
+        "id": "MG-MM 267",
+        "className": "DELicensePlate"
+      }
+    } 
+  ],
+  "segments": [
+    {
+      "id": "parkingSessiondId-001",
+      "version": 1,
+      "actualStart": "2025-03-31T17:00:00Z",
+      "assignedRight": {
+        "id": "parkingRightId",
+        "version": 1
+      },
+      "validationType": [ "licensePlate"]
+    }
+  ]
+}
+```
+
+Note: even though the booking was made for a specific time window, this doesn't necessarily mean that the customer will exactly behave like this. Therefore, the communicated _Session_ record doesn't yet include an end time (neither for the _Session_, nor for the one _Segment_).
+
+## Where is the spot: Occupancy information
+If the local parking system provides this type of data, up-to-date occupancy information can be queried for better guidance.
+
+### Example: occupancy information about the area
+```curl
+GET /places/carParkId1?expand=occupancy
+```
+
+```json
+{
+  "id": "carParkId",
+  "version": 1,
+  "supply": {
+    "supplyQuantity": 552,
+    "supplyViewType": "spaceView"
+  },
+  "demandTable": {
+    "frequency": "PT3M",
+    "timestamp": "2025-03-31T17:01:00Z",
+    "demandType": [
+      {
+        "count": 234,
+        "occupancyCalculation": "counted",
+        "recordDateTime": "2025-03-31T17:01:00Z",
+      }
+    ]
+  }
+}
+```
+## Navigation to spot: guiding of customer within garage
+This is currently not standardised (and most of it probably won't be with the exception of a potential map interface standard).
+
+## Park in/out: manuall park in/out
+Done by the customer (driver).
+
+## Navigation to exit: guiding of customer within garage
+This is currently not standardised (and most of it probably won't be with the exception of a potential map interface standard).
+
+## Exit: open barrier
+Handled by the local parking management system. A variety of (local) policies might have to be checked before open the barrier. This is currently out of scope.
+
+## Exit: Stop parking transaction
+Now that the vehicle has left the parking location, the Parking Operator's management system will provide an update of the _Session_, this time including the actual end time of the parking session.
+
+```
+PUT /sessions/parkingSessionId
+```
+
+```json
+{
+  "id": "parkingSessionId",
+  "version": 1,
+  "actualStart": "2025-03-31T17:00:00Z",
+  "actualEnd": "2025-04-02T09:55:00Z",
+  "initiator": "BMW",
+  "hierarchyElement": {
+    "id": "carPark1Id",
+    "version": 1
+  },
+  "credentials": [
+    {
+      "type": "licensePlate",
+      "identifier": {
+        "id": "MG-MM 267",
+        "className": "DELicensePlate"
+      }
+    } 
+  ],
+  "segments": [
+    {
+      "id": "parkingSessiondId-001",
+      "version": 1,
+      "actualStart": "2025-03-31T17:00:00Z",
+      "actualEnd": "2025-04-02T09:55:00Z",
+      "assignedRight": {
+        "id": "parkingRightId",
+        "version": 1
+      },
+      "validationType": [ "licensePlate"]
+    }
+  ]
+}
+```
+
+## Payment: charge parking fee to customer account
+The details of payment flow require further discussion in the team as there are many different ways of handling this.
+
+Provided the booking boundaries haven't been exceeded, the monetary value of the parking session is known at this point. It was already communicated along the lines of the quote and booking process. See [Example: obtain a quote](#example-obtain-a-quote).
+
+During the booking, an _Assigned Right_ was created (with id "parkingRightId"). At any time in the process, payments can be attached to this _Assigned Right_. Details to be discussed.
+
+### Example: posting a payment
+```
+PUT /rights/assigned/parkingRightId
+```
+
+```json
+{
+  "id": "parkingRightId",
+  "version": 1,
+
+  "payments": [
+    {
+      "id": "payment1Id",
+      "version": 1,
+      "dateCollected": "2025-03-31T17:00:00Z",
+      "dateAuthorised": "2025-03-31T16:57:00Z",
+      "transactionID": "TXparkingRightIdpayment1Id-001",
+      "idCode": "INTERPROVIDERPAYMENT",
+      "startPeriodCovered": "2025-03-31T17:00:00Z",
+      "endPeriodCovered": "2025-04-02T09:55:00Z",
+      "paymentLines": [
+          "id": "paymentLine1Id",
+          "version": 1,
+          "identifierId": "TBD",
+          "idCode": "TBD",
+          "paymentType": "payment",
+          "value": {
+            "currencyType": "EUR",
+            "currencyValue": 30
+          }
+      ]
+    }
+  ]
+}
+```
+
+## Payment: charge charging fee to customer account
+_(will be looked at at a later point)_
+
+---
 
 # Use Case 3: AVP Parking L4 (type 1,2,3)
 This is the use case where a vehicle or a vehicle equipped with L4 capabilities is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
@@ -1332,7 +1502,13 @@ With that, the AVP parking service has been booked, and the car park should be a
 
 
 ## Prerequisites and Conventions
-### OEM-defined classification
+### Parking Operator Management System
+It is the common understanding that all participating PMSes (Parking Management Systems) must be cloud-connected and that communication between other stakeholders and the Parking Operator will by default happen via the Parking Operator's cloud backend system.
+
+### ANPR
+While technically - and APDS-wise - a variety of identification methods could be supported, we are currently focusing on ANPR (Automated Number Plate Recognition).
+
+### OEM-defined Vehicle Classification
 The OEMs offering AVP will have to mutually maintain a publicly available list of AVP vehicle classifications.
 
 Example:
@@ -1360,6 +1536,10 @@ Example:
   ]
 }
 ```
+
+### Payment Procesing
+In APDS, a _Payment_ and its _Payment Lines_ offer identifiers which can be used to "tag" payments and facilitate the processing in connected billing and accounting systems. This will require agreed-upon conventions and identifiers that are not standardised by APDS but are rather specific to a particular, use case / eco system / project.
+
 
 
 
