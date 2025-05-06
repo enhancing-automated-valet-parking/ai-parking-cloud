@@ -578,7 +578,7 @@ _(will be looked at at a later point)_
 ---
 
 # Use Case 2: Manual Parking (L2 parking assistance)
-_(not final yet)_
+_(not final yet)_  
 This is the use case where a vehicle equipped with L2 parking assistance is being used. The use case is almost identical to to [Use Case 1](#use-case-1-manual-parking). An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
@@ -1126,7 +1126,7 @@ _(will be looked at at a later point)_
 ---
 
 # Use Case 3: AVP Parking L4 (type 1,2,3)
-_(not final yet)_
+_(not final yet)_  
 This is the use case where a vehicle or a vehicle equipped with L4 capabilities is being used. An overview of the identified use cases can be found [here](https://docs.ai-parking.cloud/use_cases). In this section, we'll look at the following steps of this use case:
 
 * Before and while driving
