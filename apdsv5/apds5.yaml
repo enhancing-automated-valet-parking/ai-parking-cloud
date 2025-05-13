@@ -94,6 +94,9 @@ paths:
         - $ref: '#/components/parameters/structure_grade'
         - $ref: '#/components/parameters/place_name'
         - $ref: '#/components/parameters/place_layer'
+        - $ref: '#/components/parameters/required_qualifications'
+        - $ref: '#/components/parameters/optional_qualifications'
+        - $ref: '#/components/parameters/vehicle_classification'
         - $ref: '#/components/parameters/modified_since'
         - $ref: '#/components/parameters/places_expand'
         - $ref: '#/components/parameters/page'
@@ -1727,6 +1730,45 @@ components:
       in: query
       style: form
       explode: false
+
+    # ===== AVP ===== #  
+    required_qualifications:
+      name: required_qualifications
+      description: comma-separated list of required qualifications
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - avp
+            - charging
+            - automated_charging
+      in: query
+      style: form
+      explode: false
+      
+    optional_qualifications:
+      name: optional_qualifications
+      description: comma-separated list of optional qualifications
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - avp
+            - charging
+            - automated_charging
+      in: query
+      style: form
+      explode: false
+
+    vehicle_classification:
+      name: vehicle_classification
+      description: AVP-specific vehicle classification (profile id)
+      schema:
+        type: string
+      in: query
+
 
     # ===== Right Specifications =====#
 
