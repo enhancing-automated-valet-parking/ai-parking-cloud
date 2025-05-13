@@ -2,7 +2,7 @@
 layout: home 
 sidebar:
   nav: sidemain
-title: Sample Flows 
+title: Sample Flows  
 sort: 0
 ---
 
